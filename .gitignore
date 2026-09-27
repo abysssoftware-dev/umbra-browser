@@ -1,0 +1,23 @@
+.aider*
+*Photoroom*
+
+# Website (deployed separately from the app repo)
+www/
+
+# Rust build output
+umbra/src-tauri/target/
+
+# Local sync tooling
+weppy-project-sync/
+
+# Frontend dependencies & build output
+node_modules/
+umbra/ui/.svelte-kit/
+umbra/ui/build/
+
+# Release artifacts
+dist/
+
+# OS / editor cruft
+.DS_Store
+.directory

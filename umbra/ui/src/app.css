@@ -1,0 +1,128 @@
+@import 'tailwindcss';
+
+/* ── Umbra design-token fallbacks (Rust injects resolved tokens via umbra://chrome) ── */
+:root {
+	--umbra-color-bg: #1c1c22;
+	--umbra-color-bg-alpha: 0.72;
+	--umbra-color-surface: #26262e;
+	--umbra-color-fg: #eeeff2;
+	--umbra-color-fg-dim: #9a9aa6;
+	--umbra-color-accent: #8f7bff;
+	--umbra-color-accent-fg: #fff;
+	--umbra-color-border: #3a3a46;
+	--umbra-color-danger: #ff6b6b;
+	--umbra-color-ok: #5fd39a;
+	--umbra-radius: 12px;
+	--umbra-radius-small: 8px;
+	--umbra-spacing: 6px;
+	--umbra-chrome-height: 52px;
+	--umbra-font-ui: system-ui, sans-serif;
+	--umbra-font-mono: monospace;
+	--umbra-blur: 18px;
+	--umbra-blur-saturation: 140%;
+	--umbra-noise-opacity: 0.05;
+	--umbra-ease: cubic-bezier(0.22, 1, 0.36, 1);
+	--umbra-duration: 180ms;
+	--layout-sidebar-width: 220px;
+}
+
+html,
+body {
+	height: 100%;
+	overflow: hidden;
+}
+
+body {
+	margin: 0;
+	font-family: var(--umbra-font-ui);
+	color: var(--umbra-color-fg);
+	/* Transparent: the chrome webview is stacked ABOVE the tab webviews, so the
+	   content area must be see-through to reveal the page underneath. The app
+	   background gradient lives on the chrome regions (.u-topbar/.u-sidebar/…)
+	   instead. */
+	background: transparent;
+	transition: background var(--umbra-duration) var(--umbra-ease);
+	color-scheme: dark;
+}
+
+/* Chrome regions keep the app gradient (the content area stays transparent so
+   the tab webview shows through). Defined globally so component-scoped rules
+   can layer glass effects on top. */
+.u-topbar,
+.u-sidebar,
+.u-region-bookmarks,
+.u-region-status {
+	background:
+		linear-gradient(
+			160deg,
+			color-mix(in srgb, var(--umbra-color-accent) 7%, var(--umbra-color-bg)) 0%,
+			var(--umbra-color-bg) 55%
+		);
+}
+body[data-mode='light'] {
+	color-scheme: light;
+}
+
+/* ── glassmorphism primitives ─────────────────────────────────────────────── */
+.glass {
+	background: color-mix(in srgb, var(--umbra-color-bg) calc(var(--umbra-color-bg-alpha) * 100%), transparent);
+	backdrop-filter: blur(var(--umbra-blur)) saturate(var(--umbra-blur-saturation));
+	-webkit-backdrop-filter: blur(var(--umbra-blur)) saturate(var(--umbra-blur-saturation));
+}
+.glass-strong {
+	background: color-mix(in srgb, var(--umbra-color-surface) 88%, transparent);
+	backdrop-filter: blur(calc(var(--umbra-blur) * 1.5)) saturate(var(--umbra-blur-saturation));
+	border: 1px solid var(--umbra-color-border);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+/* Heavy dark+blur scrim shared by all overlays (onboarding, tutorial, dialogs). */
+.u-scrim {
+	background: rgba(8, 8, 12, 0.5);
+	backdrop-filter: blur(24px) saturate(130%);
+	-webkit-backdrop-filter: blur(24px) saturate(130%);
+}
+
+.icon-btn {
+	all: unset;
+	cursor: default;
+	width: 30px;
+	height: 30px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	border-radius: var(--umbra-radius-small);
+	color: var(--umbra-color-fg-dim);
+	font-size: 15px;
+	transition:
+		background var(--umbra-duration) var(--umbra-ease),
+		color var(--umbra-duration) var(--umbra-ease),
+		transform var(--umbra-duration) var(--umbra-ease);
+}
+.icon-btn:hover {
+	background: color-mix(in srgb, var(--umbra-color-fg) 10%, transparent);
+	color: var(--umbra-color-fg);
+}
+.icon-btn:active {
+	transform: scale(0.92);
+}
+
+.dim {
+	color: var(--umbra-color-fg-dim);
+}
+.small {
+	font-size: 11.5px;
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--umbra-color-border);
+	border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}

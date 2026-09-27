@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Umbra",
+  "version": "0.1.0",
+  "identifier": "dev.umbra.browser",
+  "build": {
+    "frontendDist": "../ui/build",
+    "beforeBuildCommand": "npm run build --prefix ui || npm run build --prefix ../ui || npm run build --prefix umbra/ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "deb",
+      "rpm",
+      "nsis",
+      "msi"
+    ],
+    "createUpdaterArtifacts": false,
+    "publisher": "Abyss Software",
+    "homepage": "https://github.com/abysssoftware-dev/umbra-browser",
+    "copyright": "Copyright © 2026 Abyss Software",
+    "license": "GPL-3.0-only",
+    "category": "Productivity",
+    "shortDescription": "A fully customizable, slot-based browser",
+    "longDescription": "Umbra is a dotfiles-first browser built on Rust and Tauri v2. Every piece of chrome mounts into named slots you can tear down and rebuild, one live TOML file drives it all, themes and plugins install from the community, and nothing ever phones home.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/64x64.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "linux": {
+      "deb": {
+        "section": "web",
+        "priority": "optional"
+      },
+      "rpm": {
+        "release": "1"
+      }
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "English"
+        ],
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}
