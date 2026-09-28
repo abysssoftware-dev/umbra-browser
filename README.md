@@ -76,6 +76,12 @@ cargo tauri build
 
 The compiled binary and packages will be located in `umbra/src-tauri/target/release/bundle/`.
 
+For a packaged Linux release (`.deb` + `.rpm` + portable tarball + `SHA256SUMS`, all staged in `dist/`):
+
+```bash
+./scripts/build-linux.sh
+```
+
 ---
 
 ## Keybindings

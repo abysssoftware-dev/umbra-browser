@@ -74,9 +74,9 @@ bookmarks_bar = true
 status_bar = true
 sidebar_width = 220              # px, sidebar layout only
 
-[keybindings]
-"Ctrl+K" = "palette"
-"Ctrl+T" = "new_tab"
+[keybindings]                     # overrides layered on top of the built-in defaults
+"Ctrl+K" = "palette"              # any KNOWN_ACTIONS target is remappable;
+"Ctrl+T" = "new_tab"              # delete a chord here to fall back to the default
 
 [flags]
 adblock = true                   # built-in ad/tracker blocker (default-on, removable)
