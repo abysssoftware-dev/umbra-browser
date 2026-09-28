@@ -70,6 +70,7 @@ pub fn debug_log_to_file(msg: &str) {
 use serde::Serialize;
 use std::fs;
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewBuilder, WindowBuilder};
+#[cfg(target_os = "linux")]
 use gtk::prelude::*;
 use state::AppState;
 

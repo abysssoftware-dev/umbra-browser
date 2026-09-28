@@ -7,6 +7,7 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -45,9 +46,14 @@ fn persist(store: &crate::config::ConfigStore, s: &SyncStore) -> Result<(), Stri
         fs::File::create(&path).map_err(|e| format!("cannot write {}: {e}", path.display()))?;
     f.write_all(raw.as_bytes())
         .map_err(|e| format!("cannot write {}: {e}", path.display()))?;
-    // 0600: the file holds the GitHub token.
+    // 0600: the file holds the GitHub token. On Windows the token file sits
+    // inside the per-user config directory, which is already ACL'd to the
+    // owning account, so no chmod equivalent is applied.
+    #[cfg(unix)]
     fs::set_permissions(&path, fs::Permissions::from_mode(0o600))
         .map_err(|e| format!("cannot chmod 0600 {}: {e}", path.display()))?;
+    #[cfg(not(unix))]
+    let _ = &path;
     Ok(())
 }
 

@@ -259,6 +259,7 @@ fn realize_tab(app: &AppHandle, state: &crate::state::AppState, id: u32) -> Resu
         });
     // add_child is a GTK call - dispatch to the main thread with NO locks held.
     let app_create = app.clone();
+    #[cfg(target_os = "linux")]
     let label_for_embed = label.clone();
     let t_realize = std::time::Instant::now();
     on_main(app, move || -> Result<(), String> {
@@ -689,6 +690,10 @@ fn refresh_chrome_input_shape(app: &AppHandle, state: &crate::state::AppState) {
         "refresh_chrome_input_shape capture_all={capture_all} web_active={web_active} content=({cx},{cy},{cw},{ch})"
     );
 
+    // Carving an input hole is a Linux overlay concern (tab surfaces are
+    // stacked under the chrome in linux_overlay.rs); everywhere else the
+    // platform windowing stack routes pointer input natively.
+    #[cfg(target_os = "linux")]
     if let Some(chrome) = app.get_webview("chrome") {
         // with_webview must run on the GTK main thread; Tauri commands
         // (set_menu_open, set_webviews_visible, update_content_bounds, etc.)
@@ -710,6 +715,8 @@ fn refresh_chrome_input_shape(app: &AppHandle, state: &crate::state::AppState) {
             }
         });
     }
+    #[cfg(not(target_os = "linux"))]
+    let _ = app;
 }
 
 /// Toggle the chrome "capture all" mode for the hamburger dropdown / in-content
@@ -746,11 +753,15 @@ fn refresh_tab_input(app: &AppHandle, state: &crate::state::AppState) {
         return;
     }
     // Locks dropped above; with_webview must run on the GTK main thread.
+    #[cfg(target_os = "linux")]
     on_main(app, move || {
         for wv in handles {
             let _ = crate::linux_overlay::set_tab_input_shape(&wv, enabled);
         }
     });
+    // Input shaping is Linux-only; other platforms just track the flags.
+    #[cfg(not(target_os = "linux"))]
+    let _ = (app, handles, enabled);
 }
 
 fn position_tab(app: &AppHandle, state: &crate::state::AppState, id: u32) -> Result<(), String> {

@@ -1,10 +1,15 @@
+#[cfg(unix)]
 use std::io::{BufRead, BufReader, Write};
+#[cfg(unix)]
 use std::os::unix::net::UnixListener;
 use std::path::Path;
-use tauri::{AppHandle, Manager};
+#[cfg(unix)]
+use tauri::Manager;
+use tauri::AppHandle;
 
 /// Control socket (like `hyprctl`) for external scripting and status-bar
 /// integration: `echo "tabs" | socat - UNIX-CONNECT:$XDG_CONFIG_HOME/umbra/umbra.sock`
+#[cfg(unix)]
 pub fn spawn(app: AppHandle) -> Result<(), String> {
     let path = {
         let state = app.state::<crate::state::AppState>();
@@ -32,6 +37,15 @@ pub fn spawn(app: AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+/// Windows has no `UnixListener` in std, so the line-oriented control socket
+/// is Linux-only for now; startup continues without it rather than failing.
+#[cfg(not(unix))]
+pub fn spawn(_app: AppHandle) -> Result<(), String> {
+    crate::debug_log!("control socket disabled: unix domain sockets unavailable here");
+    Ok(())
+}
+
+#[cfg(unix)]
 fn handle(app: &AppHandle, cmd: &str) -> String {
     let state = app.state::<crate::state::AppState>();
     let mut parts = cmd.splitn(2, ' ');
