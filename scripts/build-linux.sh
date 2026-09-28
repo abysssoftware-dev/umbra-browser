@@ -34,8 +34,10 @@ cd "$ROOT/umbra/src-tauri"
 [ -x "$RELEASE_BIN" ] || { echo "error: release binary not found at $RELEASE_BIN" >&2; exit 1; }
 
 echo "==> Staging artifacts in $DIST"
-rm -rf "$DIST"
+# Refresh Linux artifacts only; leave sibling files (e.g. the Windows zip
+# from build-windows-cross.sh) alone so both scripts can share one dist/.
 mkdir -p "$DIST"
+rm -f "$DIST"/*.deb "$DIST"/*.rpm "$DIST"/*.tar.gz
 
 find "$ROOT/umbra/src-tauri/target/release/bundle/deb" -maxdepth 1 -name '*.deb' -exec cp {} "$DIST/" \;
 find "$ROOT/umbra/src-tauri/target/release/bundle/rpm" -maxdepth 1 -name '*.rpm' -exec cp {} "$DIST/" \;
@@ -64,9 +66,13 @@ EOF
 tar -C "$STAGE" -czf "$DIST/umbra-$VERSION-linux-$ARCH.tar.gz" "umbra-$VERSION-linux-$ARCH"
 
 echo "==> Checksums"
+# Cover everything currently in dist/ (deb, rpm, tarball, and the Windows
+# zip if build-windows-cross.sh has run too).
 (
   cd "$DIST"
-  sha256sum ./*.deb ./*.rpm ./*.tar.gz > SHA256SUMS
+  find . -maxdepth 1 -type f \
+    \( -name '*.deb' -o -name '*.rpm' -o -name '*.tar.gz' -o -name '*.zip' \) \
+    -printf '%f\n' | sort | xargs -r sha256sum > SHA256SUMS
 )
 
 echo

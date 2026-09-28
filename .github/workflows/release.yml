@@ -87,7 +87,9 @@ jobs:
         shell: bash
         run: |
           cd umbra/src-tauri
-          tauri build
+          # targets in tauri.conf.json include deb/rpm; restrict the Windows
+          # job to the bundles this runner can actually produce.
+          tauri build --bundles nsis,msi
 
       - uses: actions/upload-artifact@v4
         with:
