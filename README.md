@@ -82,6 +82,14 @@ For a packaged Linux release (`.deb` + `.rpm` + portable tarball + `SHA256SUMS`,
 ./scripts/build-linux.sh
 ```
 
+To cross-compile a portable Windows build from Linux (requires the `x86_64-pc-windows-gnu` rust target and mingw-w64):
+
+```bash
+./scripts/build-windows-cross.sh   # -> dist/umbra-<version>-windows-x86_64.zip
+```
+
+NSIS/MSI installers can only be produced on Windows — the `windows` job in `.github/workflows/release.yml` builds them on every tag push.
+
 ---
 
 ## Keybindings

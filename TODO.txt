@@ -1,95 +1,99 @@
-UMBRA — REMAINING WORK / SESSION TODO
-Last updated: 2026-09-27 (commit 7fd532b pushed to main)
+UMBRA — SESSION SUMMARY / WHAT'S LEFT
+Last updated: 2026-09-28 (commit after 3bed866, release v0.1.0 shipped)
 
 ====================================================================
-DONE THIS SESSION (already committed & pushed)
+RELEASE STATUS: v0.1.0 IS LIVE
 ====================================================================
-[x] .gitignore: www/, target/, node_modules/, .svelte-kit/, ui/build/,
-    dist/, .directory, weppy-project-sync/, .aider*, *Photoroom*
-[x] www/ untracked from git (it is deployed separately now)
-[x] tauri.conf.json -> production bundling enabled:
-      targets: deb, rpm (Linux), nsis, msi (Windows)
-      icons, publisher, copyright, license, category, descriptions
-      NSIS: currentUser install, English, no language picker
-      WebView2: downloadBootstrapper (silent)
-[x] Cargo.toml metadata: license GPL-3.0-only, repository, homepage, authors
-      (packagers read license/description from here)
-[x] scripts/build-linux.sh -> builds deb + rpm + portable tarball + SHA256SUMS
-      in dist/  (verified locally, see "LOCAL ARTIFACTS" below)
-[x] .github/workflows/release.yml -> builds on tag push (v*) or manual dispatch:
-      ubuntu: deb + rpm + tarball   |   windows: nsis .exe + msi
-      both jobs upload artifacts and attach them to the GitHub release
-[x] Website (www/): macOS and ARM/AArch64 removed — Linux (.deb/.rpm/tarball)
-    and Windows (.exe/.msi) only; download buttons link to the GitHub releases page
-[x] docs/SETUP.md: Keybindings section removed, sections renumbered 5-10
-[x] git identity set to Wyind <Wyind@users.noreply.github.com> (local + global)
-[x] Remote force-pushed: origin/main now = local history (old placeholder
-    "Initial commit" replaced, as you chose)
-
-LOCAL ARTIFACTS (already built, in dist/):
-    Umbra_0.1.0_amd64.deb            8.2M
-    Umbra-0.1.0-1.x86_64.rpm         8.2M
-    umbra-0.1.0-linux-x86_64.tar.gz  8.0M
+Tag v0.1.0 pushed -> .github/workflows/release.yml ran GREEN:
+    Linux  job  11m36s  ✓
+    Windows job  22m27s  ✓
+Release: https://github.com/abysssoftware-dev/umbra-browser/releases/tag/v0.1.0
+Assets on the release:
     SHA256SUMS
+    Umbra_0.1.0_amd64.deb
+    Umbra-0.1.0-1.x86_64.rpm
+    umbra-0.1.0-linux-x86_64.tar.gz
+    Umbra_0.1.0_x64-setup.exe
+    Umbra_0.1.0_x64_en-US.msi
+Local dist/ also holds umbra-0.1.0-windows-x86_64.zip (cross-built portable,
+not uploaded; the .exe/.msi above come from CI and are preferred).
+
+*** CAVEAT — REPO IS PRIVATE (you chose to keep it this way) ***
+Every github.com link on the website/README/docs, including the v0.1.0
+download URLs, returns 404 for anyone who is not logged in. The site is
+finished and points at the real asset URLs already; it starts working for
+visitors the moment the repo is made public:
+    gh repo edit abysssoftware-dev/umbra-browser --visibility public
+Until then, treat www/ as not ready to deploy publicly.
 
 ====================================================================
-NEXT STEPS (in order)
+DONE THIS SESSION (committed & pushed, main @ 3bed866 + docs commit)
 ====================================================================
+[x] LICENSE — GPL-3.0 text added; README's [LICENSE](LICENSE) link is real
+[x] docs/SETUP.md [keybindings] block — KEPT (schema-accurate: config.rs
+    has keybindings + KNOWN_ACTIONS), annotated as override layer
+[x] umbra/ui: @tauri-apps/cli added as devDependency -> `npx tauri` and
+    umbra/ui/node_modules/.bin/tauri resolve without a global install
+[x] README: build-linux.sh + build-windows-cross.sh documented
+[x] WINDOWS CROSS-COMPILATION — works, against the odds of the old TODO:
+    The blocker was NOT webview2-com-sys (that linked fine); the source
+    itself was Linux-only. Ported (cfg-gated, graceful degradation):
+      ipc.rs    Unix control socket -> cfg(unix); other OSes start without
+      lib.rs    gtk::prelude import only on Linux
+      sync.rs   0600 chmod only where POSIX modes exist
+      tabs.rs   input-shape overlay + label_for_embed Linux-only;
+                Windows uses the real add_child positioning path
+    Result: cargo build --release --target x86_64-pc-windows-gnu links a
+    clean PE32+ umbra.exe (zero warnings). This also un-blocked the CI
+    Windows job, which would have failed on the same errors.
+[x] scripts/build-windows-cross.sh written + tested end-to-end:
+    frontend build -> cross cargo build -> dist/umbra-<version>-
+    windows-x86_64.zip (exe + README + LICENSE) + SHA256SUMS
+[x] scripts/build-linux.sh + cross script now SHARE dist/ (no more
+    rm -rf of the whole dir) and regenerate one SHA256SUMS covering
+    deb/rpm/tar.gz/zip — verified: all 4 local artifacts + 4 checksums
+[x] release.yml: Windows job passes `--bundles nsis,msi` (caveat #2
+    pre-empted; job went green first try)
+[x] Website www/ redesigned to match the product (dark-glass Umbra brand,
+    light-mode variant, sticky full-bleed glass nav, hero with a pure-CSS
+    browser mockup, glass feature cards, platform icons, 9-card 3x3 grid,
+    responsive). Verified with headless Chromium:
+    60/60 structural checks pass (no overflow, palettes correct, images
+    load, sticky nav, 3-col/1-col grids, local links resolve) at
+    1280px + 390px, dark + light, all three pages.
+[x] Website download buttons now hit CONCRETE v0.1.0 asset URLs on the
+    downloads page (per-format buttons + SHA256SUMS link); index cards
+    funnel to the downloads page so nobody grabs the wrong package
 
---- 1. SHIP THE FIRST RELEASE (makes the website download links real) ---
-[ ] git tag v0.1.0 && git push origin v0.1.0
-      -> triggers .github/workflows/release.yml
-[ ] Watch it run: https://github.com/abysssoftware-dev/umbra-browser/actions
-[ ] Confirm artifacts appear on the releases page
-[ ] Optional: point the website buttons at the concrete asset URLs instead of
-      .../releases (currently www/index.html and www/pages/downloads.html)
+====================================================================
+REMAINING / NEXT SESSION
+====================================================================
+[ ] Deploy www/ — still gitignored, ships separately (your hosting)
+      NOTE: hold off until the repo is public, or links 404 for visitors
+[ ] Decide when to flip the repo public (see CAVEAT above); one command
+[ ] After going live: click through downloads.html buttons once (they
+    were HTTP-verified as 404-while-private, correct paths per `gh release
+    view`)
+[ ] Optional CI hygiene (informational annotations from the green run):
+      - Node.js 20 deprecated on actions/{checkout,setup-node,
+        upload-artifact} + softprops/action-gh-release -> bump to v5/v6
+        when convenient (still works today)
+      - ubuntu-latest migrates to Ubuntu 26 on 2026-10-19; if the Linux
+        job breaks then, pin runs-on to ubuntu-24.04 (or 22.04 as the
+        original fallback)
+[ ] Next release procedure: bump version in umbra/src-tauri/tauri.conf.json
+    (+ umbra/ui/package.json), ./scripts/build-linux.sh,
+    ./scripts/build-windows-cross.sh, commit, `git tag -a vX.Y.Z && git
+    push origin vX.Y.Z`, CI republishes; update the v0.x.y paths in
+    www/pages/downloads.html (they are pinned to the tag)
 
---- 2. WINDOWS CROSS-COMPILATION (optional — CI already produces installers) ---
-Environment is READY (installed this session, survives reboot):
-  [x] rustup 1.29.1 + stable toolchain (rustc 1.98.1)
-  [x] target x86_64-pc-windows-gnu added
-  [x] mingw64-gcc 16.1.1 at /usr/bin/x86_64-w64-mingw32-gcc
-
-Command to run next session:
-    export PATH="$HOME/.cargo/bin:$PATH"
-    cd umbra/src-tauri
-    cargo build --release --target x86_64-pc-windows-gnu
-    # output: target/x86_64-pc-windows-gnu/release/umbra.exe
-
-[ ] If it links, zip it as a portable Windows build:
-      scripts/build-windows-cross.sh  (TODO: write this script)
-      -> umbra-<version>-windows-x86_64.zip + SHA256 entry
-[ ] Known risk: webview2-com-sys / WebView2 loader may refuse to link under
-      the -gnu toolchain. Fallbacks, in order:
-        a) retry with `sudo dnf install lld` + cargo-xwin (MSVC target):
-             cargo install cargo-xwin
-             cargo xwin build --release --target x86_64-pc-windows-msvc
-        b) just use CI — the `windows` job in release.yml is the supported path
-[ ] NOTE: NSIS/MSI installers CANNOT be built on Linux. Local cross-build
-      only ever yields a portable .exe; installers come from CI.
-
---- 3. REPO / LEGAL ---
-[ ] Add the missing GPL-3.0 license file — README.md says
-      "GPL-3.0. See [LICENSE](LICENSE)" but no LICENSE file exists:
-      curl -L https://www.gnu.org/licenses/gpl-3.0.txt -o LICENSE && git add LICENSE
-[ ] Decide on the `[keybindings]` TOML block left in docs/SETUP.md section 2
-      (the Keybindings section was removed as asked; the config example still
-      shows the block — keep for schema accuracy, or drop it)
-
---- 4. WEBSITE ---
-[ ] Deploy www/ to your hosting — it is gitignored now, so it ships separately
-[ ] After the first release, spot-check the download buttons
-
---- 5. DEV ERGONOMICS (optional) ---
-[ ] Add @tauri-apps/cli as a devDependency of umbra/ui so `npx tauri` resolves
-      without a global install (CI installs it globally already)
-[ ] Mention ./scripts/build-linux.sh in README "Build Steps"
-[ ] Note for future edits: tauri's beforeBuildCommand runs with a cwd that
-      depends on where you invoked `tauri` from — that is why the command is a
-      fallback chain (ui | ../ui | umbra/ui). Do not simplify it to a single path.
-
---- 6. CI CAVEATS ---
-[ ] ubuntu-latest (24.04) has libwebkit2gtk-4.1-dev — if the Linux job fails
-      on a dependency, pin runs-on to ubuntu-22.04
-[ ] If Tauri refuses to build on the Windows job because targets include
-      deb/rpm, pass `--bundles nsis,msi` explicitly in release.yml
+====================================================================
+NOTES FOR FUTURE EDITS
+====================================================================
+- tauri's beforeBuildCommand runs with a cwd that depends on where you
+  invoked `tauri` from — that is why the command is a fallback chain
+  (ui | ../ui | umbra/ui). Do not simplify it to a single path.
+- plain `cargo build` does NOT run beforeBuildCommand; the cross script
+  builds umbra/ui itself first.
+- www/ is deliberately untracked; never `git add www/`.
+- macOS remains intentionally unsupported (no ARM/macOS artifacts).
