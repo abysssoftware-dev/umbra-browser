@@ -21,3 +21,6 @@ dist/
 # OS / editor cruft
 .DS_Store
 .directory
+
+# Local session notes (kept out of the repo)
+TODO.txt
